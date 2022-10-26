@@ -1,0 +1,4 @@
+"Domain","MX","SPF","Status","SendMail"
+"yourax.com","youraxsas.in.tmes.trendmicro.eu","v=spf1 include:spf.tmes.trendmicro.com include:spf2.sbr-master.net ~all","Status Online","True"
+"viacesi.fr","viacesi-fr.mail.protection.outlook.com","v=spf1 include:spf.protection.outlook.com include:privilis.com -all","Status Online","True"
+"flsflsdf.com","","","Status Offline","False"
