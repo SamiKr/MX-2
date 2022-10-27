@@ -34,12 +34,14 @@ function Get-MXConfig {
     $Subject = "TestEmailSend"
     $Body = "Test"
     $Port = "25"
+   
+
 
     foreach($Domain in Get-Domain) {
     $MX = Resolve-DnsName -Type MX -Name $Domain -ErrorAction SilentlyContinue | ? Type -eq MX | Select @{L="Host"; E={$_.NameExchange}}, Preference | Sort-Object Preference 
+    $MXTotal = Resolve-DnsName -Type MX -Name $Domain -ErrorAction SilentlyContinue | ? Type -eq MX | Select @{L="Host"; E={$_.NameExchange}}, Preference | Sort-Object Preference
     $SPF = Resolve-DnsName -Name $Domain -Type TXT -Erroraction SilentlyContinue | ? {$_.Strings -match "v=spf1"} | Select -ExpandProperty Strings
     
-    #$NetCo = TNC $MX.Host  -Port 25 -ErrorAction SilentlyContinue -InformationLevel "Quiet" 
 
     $NbMX = 0
     
@@ -47,23 +49,38 @@ function Get-MXConfig {
     Write-Host $MXName.Host 
     $NbMX = ($MX.Host).Count
     $Split = $MXName.Host 
-    #Write-Output "Le nombre de MX est de $NbMX"
+    
     
 
     #write-output $MX.preferences
     #NetCo ralentie considérablement le système 
 
+
     $MXDiag = [PSCustomObject] @{
-       Domain = $Domain
-       MX = (($MX.Host)  -join(','))
+       Domain = $Domain 
+       #MX = (( $MX.Host)  -join("`r`n"))
+       MX = (( $MX.Host)) | Select-object -Index 0
        #MX2 = (($MX.Host)  -Split("{,}"))
        #MX = (($MX.Host) -and ($MX.Preference)  -join(' '))
        SPF = $SPF
        #Status = $NetCo
        SendMail = $Answer
        }
-       
-       
+     Write-Host "Le nombre de MX est de $NbMX"   
+
+        if ($NbMX > 1) {
+        Write-host "----------ça passe-----------"
+        
+        }else{
+
+        Write-host "Pas Besoin"
+        }
+
+
+
+
+
+     #$NetCo = TNC $MX.Host  -Port 25 -ErrorAction SilentlyContinue -InformationLevel "Quiet"
        
        if($NetCo){
        #Write-Host($Domain," ",(@($MX.Host)  -join(' ')) + " is online")
@@ -71,7 +88,7 @@ function Get-MXConfig {
         
         try
         {
-        write-host "------------------------------------------Envoi de mail à $Domain -----------------------------------------------------------------------"
+        write-Host "------------------------------------------Envoi de mail à $Domain -----------------------------------------------------------------------"
          
         $SMTPServer = $MX.Host
         Send-MailMessage -From "test@$Domain" -To "test@$Domain" -Subject $Subject -Body $Body -Priority High -SmtpServer $SMTPServer -Port $Port -BodyAsHtml -ErrorAction Stop
@@ -106,6 +123,6 @@ function Get-MXConfig {
 
     }
 
-Get-MXConfig
+Get-MXConfig | Format-Table -wrap
 
-Get-MXConfig -Name ItWorks | Export-Csv -Path "C:\Users\adm_skosbur\Documents\Scripting\ItWorks.csv" -NoTypeInformation 
+Get-MXConfig -Name ItWorks | Export-Csv -Path "C:\Users\adm_skosbur\Documents\Scripting\ItWorks.csv" -NoTypeInformation
