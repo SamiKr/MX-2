@@ -36,7 +36,6 @@ function Get-MXConfig {
     Param (
     [string]$DomainRequest
     )
-    #Fichier de sortie
     $Domain = Get-Domain $DomainRequest
 
     $Subject = "TestEmailSend"
